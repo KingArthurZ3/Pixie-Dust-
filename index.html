@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <style>
+            body {
+                margin: 0;
+            }
+        </style>
+        <title>For Jessica</title>
+    </head>
+    <body>
+        <canvas id="main-canvas" style="height: 100%; width: 100%;"></canvas>
+        <script src="processing.min.js"></script>
+        <script>
+            const processingInstance = new Processing(document.getElementById('main-canvas'), function(processing) {
+                with (processing) {
+                    size(window.innerWidth - 50, window.innerHeight - 50);
+
+                    maxMag = new PVector(width, height).mag();
+
+                    const Particle = function(position) {
+//                        this.velocity = PVector.sub(
+//                            new PVector(mouseX, mouseY),
+//                            position
+//                        );
+                        this.velocity = new PVector(random(-10, 3), random(-3, 3));
+                        this.velocity.limit(1);
+                        this.position = position.get();
+                    };
+
+                    Particle.prototype.run = function() {
+                        this.update();
+                        this.display();
+                    };
+
+                    Particle.prototype.update = function() {
+                        this.position.add(this.velocity);
+                    };
+
+                    Particle.prototype.display = function() {
+                        noStroke();
+                        const fV = PVector.sub(new PVector(mouseX, mouseY), this.position).mag() / maxMag * 255;
+                        fill(fV, 125, fV);
+                        ellipse(this.position.x, this.position.y, 12, 12);
+                    };
+
+                    const particles = [];
+                    const particleCenter = new PVector(width / 2, height / 2);
+
+                    draw = function() {
+                        background(0, 255, 255);
+                        particles.push(new Particle(particleCenter));
+
+                        for (let i = particles.length - 1; i >= 0; i--) {
+                            const p = particles[i];
+                            p.run();
+                            if (p.position.x < 0 || p.position.x > window.innerWidth - 50) {
+                                particles.splice(i, 1);
+                            }
+                            if (p.position.y < 0 || p.position.y > window.innerHeight - 50) {
+                                particles.splice(i, 1);
+                            }
+                        }
+
+                        const velocity = PVector.sub(
+                            new PVector(mouseX, mouseY),
+                            particleCenter
+                        );
+                        velocity.limit(5);
+                        particleCenter.add(velocity);
+                    };
+                }
+            });
+        </script>
+    </body>
+</html>
